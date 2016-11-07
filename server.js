@@ -1,11 +1,9 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var mongoose = require('mongoose')
-
-var Message = mongoose.model('Message', {
-  msg: String
-});
+var mongoose = require('mongoose');
+var auth = require('./controllers/auth');
+var message = require('./controllers/message');
 
 app.use(bodyParser.json());
 
@@ -15,24 +13,11 @@ app.use(function(req,res,next){
   next();
 })
 
-app.get('/api/message', GetMessages);
+app.get('/api/message', message.get);
 
-app.post('/api/message', function(req, res){
-  var message = new Message(req.body);
-  message.save();
+app.post('/api/message', message.post);
 
-  res.status(200);
-});
-
-app.post('/auth/register', function(req, res){
-  console.log(req.body)
-});
-
-function GetMessages (req, res) {
-  Message.find({}).exec(function(err, result){
-    res.send(result);
-  });
-};
+app.post('/auth/register', auth.register);
 
 mongoose.connect("mongodb://localhost:27017/test", function(err,db){
   if(!err){
